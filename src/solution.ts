@@ -58,3 +58,28 @@ incr.names.forEach((incName, i) => {
 
 }
 
+export function increment(base: ChartDataModel, incr: ChartDataModel): ChartDataModel {
+  const baseMap: Record<string, (number | null)[]> = base.names
+    .reduce((acc, i, index) => ({ ...acc, [i]: base.values[index] }), {});
+
+  const incrMap: Record<string, (number | null)[]> = incr.names
+    .reduce((acc, i, index) => ({ ...acc, [i]: incr.values[index] }), {});
+
+  Object.keys(baseMap).forEach(key => {
+    const currentIncrValue: number | null = incrMap[key] ? incrMap[key][0] : null;
+    baseMap[key] = [...baseMap[key].slice(1), currentIncrValue];
+    delete incrMap[key];
+  });
+
+  Object.keys(incrMap).forEach(key => {
+    baseMap[key] = [null, null, null, incrMap[key][0]];
+  });
+
+  Object.keys(baseMap).forEach(key => {
+    if (baseMap[key].every(value => value === null))
+      delete baseMap[key];
+  });
+
+  return { names: Object.keys(baseMap), values: Object.values(baseMap) };
+}
+
